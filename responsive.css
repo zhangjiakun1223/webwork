@@ -1,0 +1,292 @@
+/* responsive.css - 移动端响应式样式 */
+
+/* 基础响应式设置 */
+@media (max-width: 768px) {
+    /* 通用样式 */
+    body {
+        padding: 10px !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    /* 头部优化 */
+    .header {
+        position: relative !important;
+        min-height: 140px !important; /* 确保有足够高度 */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        padding-top: 60px !important; /* 给顶部的按钮留出空间 */
+    }
+
+    .header-content {
+        text-align: center !important;
+        margin-top: 10px !important;
+    }
+
+    .header-top {
+        position: absolute !important;
+        top: 15px !important;
+        right: 15px !important;
+        left: 15px !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        height: 40px !important; /* 为按钮区域预留固定高度 */
+    }
+
+    /* 调整auth-buttons在移动端的显示 */
+    .auth-buttons {
+        position: static !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        gap: 5px !important;
+        width: 100% !important;
+    }
+
+    /* 欢迎信息调整 */
+    .login-prompt {
+        text-align: center !important;
+        padding: 15px !important;
+        margin: 15px !important;
+        font-size: 0.9rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .header h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 5px !important;
+    }
+
+    .header p {
+        font-size: 0.9rem !important;
+    }
+
+    /* 按钮优化 */
+    .auth-buttons {
+        position: static !important;
+        margin-top: 10px !important;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .auth-btn {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+        margin: 3px !important;
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    /* 表单优化 */
+    .login-container,
+    .register-container,
+    .reset-container,
+    .new-password-container {
+        padding: 1.5rem !important;
+        margin: 10px !important;
+        width: calc(100% - 20px) !important;
+    }
+
+    .form-group {
+        margin-bottom: 1rem !important;
+    }
+
+    input, textarea, button {
+        font-size: 16px !important; /* 防止iOS缩放 */
+    }
+
+    /* 留言列表优化 */
+    .message-item {
+        padding: 12px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .message-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 5px;
+    }
+
+    .message-author {
+        font-size: 0.95rem !important;
+    }
+
+    .message-time {
+        font-size: 0.8rem !important;
+    }
+
+    .message-content {
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+    }
+
+    /* 搜索框优化 */
+    .search-container {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .search-input,
+    .search-button,
+    .clear-button {
+        width: 100% !important;
+        padding: 12px !important;
+    }
+
+    /* 按钮优化 */
+    .submit-btn,
+    .login-button,
+    .register-button,
+    .reset-button,
+    .new-password-button {
+        padding: 12px !important;
+        font-size: 1rem !important;
+    }
+
+    /* 两栏布局改为单栏 */
+    .form-row {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    /* 返回链接优化 */
+    .back-link {
+        margin: 10px !important;
+        display: inline-block;
+        padding: 8px 12px;
+    }
+
+    /* 删除按钮优化 */
+    .delete-btn {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* 小屏幕手机优化 */
+@media (max-width: 480px) {
+    .header {
+        min-height: 120px !important;
+        padding-top: 50px !important;
+    }
+
+    .auth-buttons {
+        justify-content: center !important;
+    }
+
+    .auth-btn {
+        font-size: 0.75rem !important;
+        padding: 5px 8px !important;
+        margin: 2px !important;
+    }
+
+    .header h1 {
+        font-size: 1.2rem !important;
+    }
+
+    .header p {
+        font-size: 0.8rem !important;
+    }
+
+    .header-top {
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        height: 35px !important;
+    }
+}
+
+/* 平板设备优化 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 90% !important;
+    }
+
+    .auth-btn {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大触摸目标 */
+    a, button, input[type="submit"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* 移除hover效果 */
+    .auth-btn:hover,
+    .submit-btn:hover,
+    button:hover {
+        transform: none !important;
+    }
+
+    /* 增加点击反馈 */
+    .auth-btn:active,
+    .submit-btn:active,
+    button:active {
+        opacity: 0.8;
+        transform: scale(0.98) !important;
+    }
+}
+
+/* 防止iOS表单缩放 */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
+}
+
+/* 键盘弹出时优化 */
+@media (max-height: 500px) {
+    body {
+        padding-top: 10px !important;
+    }
+
+    .header {
+        position: static !important;
+    }
+}
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-width: 768px) {
+    .header {
+        min-height: 100px !important;
+        padding-top: 50px !important;
+    }
+
+    .header h1 {
+        font-size: 1.2rem !important;
+    }
+
+    .auth-buttons {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .container {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+    }
+}

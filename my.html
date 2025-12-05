@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="stylesheet" href="responsive.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>我的留言</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .messages-container {
+            padding: 20px;
+        }
+
+        .messages-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .message-item {
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .message-author {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .message-time {
+            color: #999;
+        }
+
+        .message-content {
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📝 我的留言</h1>
+        <p>查看和管理您发表的留言</p>
+    </div>
+
+    <a href="index.html" class="back-link">← 返回留言板</a>
+    <a href="post.html" class="post-button" style="display: inline-block; margin: 20px; padding: 10px 15px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">发布新留言</a>
+
+    <div class="messages-container">
+        <h2 class="messages-title">我的留言列表</h2>
+        <div id="myMessagesList">
+            <!-- 用户的留言将在这里显示 -->
+            <div class="no-messages">您还没有发表过留言</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 当前用户信息
+    let currentUser = null;
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuth();
+        loadMyMessages();
+    });
+
+    // 检查登录状态
+    function checkAuth() {
+        const token = localStorage.getItem('authToken');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            // 如果未登录，重定向到登录页面
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        try {
+            currentUser = JSON.parse(userStr);
+            // 更新页面显示当前用户信息
+            document.querySelector('.header h1').textContent += ` - ${currentUser.username}`;
+            return true;
+        } catch (error) {
+            console.error('解析用户信息失败:', error);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+            return false;
+        }
+    }
+
+    // 加载当前用户的所有留言
+    async function loadMyMessages() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/my-messages', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const messages = await response.json();
+                renderMyMessages(messages);
+            } else if (response.status === 401) {
+                alert('登录已过期，请重新登录');
+                logout();
+            } else {
+                throw new Error('获取留言失败');
+            }
+        } catch (error) {
+            console.error('加载留言失败:', error);
+            const container = document.getElementById('myMessagesList');
+            container.innerHTML = '<div class="no-messages">无法加载留言，请检查服务器连接</div>';
+        }
+    }
+
+    // 渲染用户留言列表
+    function renderMyMessages(messages) {
+        const container = document.getElementById('myMessagesList');
+
+        if (messages.length === 0) {
+            container.innerHTML = '<div class="no-messages">您还没有发表过留言</div>';
+            return;
+        }
+
+        container.innerHTML = messages.map(message => `
+        <div class="message-item" data-id="${message.id}">
+            <div class="message-header">
+                <span class="message-author">${escapeHtml(message.author)}</span>
+                <span class="message-time">${formatTime(new Date(message.timestamp))}</span>
+            </div>
+            <div class="message-content">
+                ${escapeHtml(message.content).replace(/\n/g, '<br>')}
+            </div>
+            <button class="delete-btn" onclick="deleteMessage(${message.id})">删除</button>
+        </div>
+    `).join('');
+    }
+
+    // 删除留言
+    async function deleteMessage(messageId) {
+        if (confirm('确定要删除这条留言吗？')) {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`/api/messages/${messageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    loadMyMessages();
+                    alert('留言已删除');
+                } else {
+                    alert('删除留言失败，请重试');
+                }
+            } catch (error) {
+                console.error('删除留言失败:', error);
+                alert('删除留言时发生错误');
+            }
+        }
+    }
+
+    // 注销功能
+    function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+
+    // 辅助函数
+    function formatTime(date) {
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return '刚刚';
+        if (minutes < 60) return `${minutes}分钟前`;
+        if (hours < 24) return `${hours}小时前`;
+        if (days < 30) return `${days}天前`;
+
+        return date.toLocaleDateString('zh-CN');
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // 添加注销按钮事件
+    document.addEventListener('DOMContentLoaded', function() {
+        // 可以在页面添加注销按钮
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = '注销';
+        logoutBtn.style.cssText = 'position: absolute; top: 20px; right: 20px; padding: 8px 15px; background: #ff6b6b; color: white; border: none; border-radius: 5px; cursor: pointer;';
+        logoutBtn.onclick = logout;
+
+        const header = document.querySelector('.header');
+        if (header) {
+            header.style.position = 'relative';
+            header.appendChild(logoutBtn);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="stylesheet" href="responsive.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>简易留言板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            position: relative;
+            min-height: 160px; /* 增加最小高度 */
+            display: flex;
+            flex-direction: column;
+        }
+        .header-top {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            left: 15px;
+            display: flex;
+            justify-content: flex-end;
+            height: 40px; /* 为按钮区域预留固定高度 */
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .auth-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-left: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: background 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .messages-container {
+            padding: 20px;
+        }
+
+        .messages-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .message-item {
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .message-author {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .message-time {
+            color: #999;
+        }
+
+        .message-content {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            padding: 30px;
+        }
+
+        .error-message {
+            text-align: center;
+            color: #e74c3c;
+            padding: 30px;
+            background: #ffeaea;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .login-prompt {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .login-prompt a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        .search-container {
+            margin: 0 0 20px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        .search-button {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #764ba2;
+        }
+
+        .clear-button {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .clear-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .search-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+<body>
+<script>
+    // 检查登录状态
+    const authToken = localStorage.getItem('authToken');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (authToken && user) {
+        // 用户已登录，更新页面显示
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新页面上的登录状态
+            updateAuthButtons();
+        });
+    }
+
+    function updateAuthButtons() {
+        const authButtons = document.querySelector('.auth-buttons');
+        const loginPrompt = document.querySelector('.login-prompt');
+
+        if (authButtons && user) {
+            authButtons.innerHTML = `
+                <span style="color: white; margin-right: 10px;">欢迎，${user.username}</span>
+                <a href="my.html" class="auth-btn">📝 我的留言</a>
+                <a href="post.html" class="auth-btn">✏️ 发布留言</a>
+                <a href="#" onclick="logout()" class="auth-btn">🚪 退出</a>
+            `;
+        }
+
+        // 如果已登录，隐藏登录提示
+        if (loginPrompt && user) {
+            loginPrompt.style.display = 'none';
+        }
+    }
+
+    function logout() {
+        if (confirm('确定要退出登录吗？')) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.reload();
+        }
+    }
+</script>
+<div class="container">
+    <div class="header">
+        <div class="header-top">
+            <div class="auth-buttons">
+                <a href="login.html" class="auth-btn">🔑 登录</a>
+                <a href="register.html" class="auth-btn">📝 注册</a>
+            </div>
+        </div>
+        <div class="header-content">
+            <h1>💬 简易留言板</h1>
+            <p>查看所有留言</p>
+        </div>
+    </div>
+
+    <div class="login-prompt">
+        请先<a href="login.html">登录</a>或<a href="register.html">注册</a>来发布留言和管理您的留言
+    </div>
+
+    <div class="messages-container">
+        <h2 class="messages-title">所有留言</h2>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="搜索留言内容或作者..." class="search-input">
+            <button onclick="searchMessages()" class="search-button">搜索</button>
+            <button onclick="clearSearch()" class="clear-button">清除</button>
+        </div>
+        <div id="messagesList">
+            <!-- 留言项将在这里动态显示 -->
+            <div class="loading">正在加载留言...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function searchMessages() {
+        const keyword = document.getElementById('search-input').value.trim();
+
+        if (!keyword) {
+            alert('请输入搜索关键词');
+            return;
+        }
+
+        const container = document.getElementById('messagesList');
+        container.innerHTML = '<div class="loading">搜索中...</div>';
+
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(keyword)}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const messages = await response.json();
+
+            // 显示搜索结果信息
+            let html = '';
+            if (messages.length > 0) {
+                html += `<div class="search-info">找到 ${messages.length} 条关于 "${escapeHtml(keyword)}" 的留言</div>`;
+            }
+
+            if (messages.length === 0) {
+                html += `
+                <div class="no-messages">
+                    没有找到关于 "${escapeHtml(keyword)}" 的留言
+                </div>
+            `;
+            } else {
+                html += messages.map(message => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <span class="message-author">${escapeHtml(message.author)}</span>
+                        <span class="message-time">${formatTime(new Date(message.timestamp))}</span>
+                    </div>
+                    <div class="message-content">
+                        ${escapeHtml(message.content).replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `).join('');
+            }
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error('搜索失败:', error);
+            container.innerHTML = `
+            <div class="error-message">
+                <strong>搜索失败</strong><br>
+                错误详情：${error.message}
+            </div>
+        `;
+        }
+    }
+
+    // 清除搜索
+    function clearSearch() {
+        document.getElementById('search-input').value = '';
+        loadMessages();
+    }
+
+    // 监听搜索输入框的Enter键
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchMessages();
+                }
+            });
+        }
+    });
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMessages();
+
+        // 绑定搜索框的Enter键事件
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    searchMessages();
+                }
+            });
+        }
+    });
+
+    // 从后端加载留言
+    async function loadMessages() {
+        const container = document.getElementById('messagesList');
+
+        try {
+            // 显示加载中状态
+            container.innerHTML = '<div class="loading">正在加载留言...</div>';
+
+            const response = await fetch('/api/messages');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const messages = await response.json();
+            renderMessages(messages);
+        } catch (error) {
+            console.error('加载留言失败:', error);
+
+            // 显示详细的错误信息
+            container.innerHTML = `
+                    <div class="error-message">
+                        <strong>无法加载留言</strong><br>
+                        错误详情：${error.message}<br><br>
+                        <strong>请检查以下步骤：</strong>
+                        <ol style="text-align: left; display: inline-block; margin: 10px 0;">
+                            <li>确保已安装 Node.js</li>
+                            <li>在项目目录运行 "npm install" 安装依赖</li>
+                            <li>运行 "node server.js" 启动服务器</li>
+                            <li>确保服务器运行在 http://localhost:3000</li>
+                        </ol>
+                    </div>
+                `;
+        }
+    }
+
+    // 渲染留言列表
+    function renderMessages(messages) {
+        const container = document.getElementById('messagesList');
+
+        if (!messages || messages.length === 0) {
+            container.innerHTML = `
+                    <div class="no-messages">
+                        暂无留言，请先登录并发布第一个留言！
+                    </div>
+                `;
+            return;
+        }
+
+        container.innerHTML = messages.map(message => `
+                <div class="message-item">
+                    <div class="message-header">
+                        <span class="message-author">${escapeHtml(message.author)}</span>
+                        <span class="message-time">${formatTime(new Date(message.timestamp))}</span>
+                    </div>
+                    <div class="message-content">
+                        ${escapeHtml(message.content).replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // 格式化时间显示
+    function formatTime(date) {
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return '刚刚';
+        if (minutes < 60) return `${minutes}分钟前`;
+        if (hours < 24) return `${hours}小时前`;
+        if (days < 30) return `${days}天前`;
+
+        return date.toLocaleDateString('zh-CN');
+    }
+
+    // 转义HTML特殊字符防止XSS攻击
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+</script>
+</body>
+</html>

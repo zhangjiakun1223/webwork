@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="stylesheet" href="responsive.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>用户注册</title>
+    <style>
+
+
+
+        .main-navigation {
+            background: #333;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-navigation a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .main-navigation a:hover {
+            background: #555;
+        }
+
+        .main-navigation a.active {
+            background: #667eea;
+        }
+
+
+
+
+
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .register-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .register-button:hover {
+            background: linear-gradient(135deg, #224abe 0%, #4e73df 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-button:active {
+            transform: translateY(0);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #4e73df;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.3rem;
+        }
+    </style>
+    <script src="auth.js"></script>
+</head>
+<body>
+
+
+
+
+
+<div class="register-container">
+    <div class="register-header">
+        <h2>创建新账户</h2>
+        <p>填写以下信息注册新用户</p>
+    </div>
+
+    <form id="registerForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="firstName">名字</label>
+                <input type="text" id="firstName" name="firstName" placeholder="请输入名字" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">姓氏</label>
+                <input type="text" id="lastName" name="lastName" placeholder="请输入姓氏" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">邮箱地址</label>
+            <input type="email" id="email" name="email" placeholder="请输入邮箱" required>
+        </div>
+
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            <div class="password-requirements">
+                密码至少8位，包含字母和数字
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">确认密码</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" required>
+        </div>
+
+        <button type="submit" class="register-button">注册账户</button>
+    </form>
+
+    <div class="login-link">
+        已有账户？<a href="login.html">立即登录</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // 获取表单数据
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+
+        // 客户端验证
+        if (data.password !== data.confirmPassword) {
+            alert('两次输入的密码不一致！');
+            return;
+        }
+
+        if (data.password.length < 6) {
+            alert('密码长度至少6位！');
+            return;
+        }
+
+        if (!/[a-zA-Z]/.test(data.password)) {
+            alert('密码必须包含至少一个字母！');
+            return;
+        }
+
+        if (!/\d/.test(data.password)) {
+            alert('密码必须包含至少一个数字！');
+            return;
+        }
+
+        // 邮箱验证
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.email)) {
+            alert('请输入有效的邮箱地址！');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: data.username,
+                    email: data.email,
+                    password: data.password,
+                    firstName: data.firstName,
+                    lastName: data.lastName
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('注册成功！欢迎加入我们。');
+                window.location.href = 'login.html';
+            } else {
+                alert('注册失败: ' + result.error);
+            }
+        } catch (error) {
+            console.error('注册失败:', error);
+            alert('注册时发生错误，请检查服务器连接');
+        }
+    });
+</script>
+</body>
+</html>
